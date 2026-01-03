@@ -103,6 +103,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
                 toast.success('Welcome back!');
                 return true;
             } else {
+                console.log(response);
                 toast.error('Invalid credentials');
                 return false;
             }
