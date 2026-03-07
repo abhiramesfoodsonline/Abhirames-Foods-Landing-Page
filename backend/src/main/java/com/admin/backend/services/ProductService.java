@@ -55,7 +55,7 @@ public class ProductService {
     }
 
     public ProductModel updateProduct(Long id, ProductModel product){
-        if(id == null || product == null || product.getProductName() == null || product.getProductDescription() == null || product.getBuyLink() == null || product.getProductImageUrl() == null){
+        if(id == null || product == null || product.getProductName() == null || product.getProductDescription() == null || product.getBuyLink() == null || product.getProductImageUrl() == null || product.getSummarizedDescription() == null){
             System.out.println(product);
             throw new IllegalArgumentException("One or more required fields are empty or null.");
         }
@@ -66,6 +66,7 @@ public class ProductService {
         }
         existingProduct.setProductName(product.getProductName());
         existingProduct.setProductDescription(product.getProductDescription());
+        existingProduct.setSummarizedDescription(product.getSummarizedDescription());
         existingProduct.setBuyLink(product.getBuyLink());
         existingProduct.setProductImageUrl(product.getProductImageUrl());
         existingProduct.setAvailable(product.isAvailable());

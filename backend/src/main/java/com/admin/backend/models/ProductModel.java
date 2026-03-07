@@ -31,6 +31,11 @@ public class ProductModel {
     @JsonProperty("product_description")
     private String productDescription;
 
+    @NotBlank(message = "Summarized description cannot be empty")
+    @Column(name = "summarized_description")
+    @JsonProperty("summarized_description")
+    private String summarizedDescription;
+
     @NotBlank(message = "Buy Link cannot be empty")
     @Column(name = "buy_link")
     @JsonProperty("buy_link")

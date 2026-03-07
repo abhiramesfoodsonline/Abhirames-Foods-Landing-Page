@@ -12,27 +12,20 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "Categories")
+@Table(name = "PrivacyPolicy")
 @EntityListeners(AuditingEntityListener.class)
-public class CategoriesModel {
+public class PrivacyPolicyModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    @JsonProperty("category_id")
-    private Long categoryId;
+    @Column(name = "privacy_policy_id")
+    @JsonProperty("privacy_policy_id")
+    private Long privacyPolicyId;
 
-    @NotBlank(message = "Category Name cannot be empty")
-    @Column(name = "category_name", unique = true)
-    @JsonProperty("category_name")
-    private String categoryName;
-    
-    @Column(name = "is_active")
-    @JsonProperty("is_active")
-    private boolean isActive;
+    @NotBlank(message = "Description cannot be empty")
+    @Column(name = "description")
+    @JsonProperty("description")
+    private String description;
 
-    @Column(name = "image_url")
-    @JsonProperty("image_url")
-    private String imageUrl;
 
     @Column(name = "created_at", updatable = false)
     @JsonProperty("created_at")

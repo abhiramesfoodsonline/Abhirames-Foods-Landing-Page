@@ -12,27 +12,19 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "Categories")
+@Table(name = "ShippingPolicy")
 @EntityListeners(AuditingEntityListener.class)
-public class CategoriesModel {
+public class ShippingPolicyModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "category_id")
-    @JsonProperty("category_id")
-    private Long categoryId;
+    @Column(name = "shipping_policy_id")
+    @JsonProperty("shipping_policy_id")
+    private Long shippingPolicyId;
 
-    @NotBlank(message = "Category Name cannot be empty")
-    @Column(name = "category_name", unique = true)
-    @JsonProperty("category_name")
-    private String categoryName;
-    
-    @Column(name = "is_active")
-    @JsonProperty("is_active")
-    private boolean isActive;
-
-    @Column(name = "image_url")
-    @JsonProperty("image_url")
-    private String imageUrl;
+    @NotBlank(message = "Description cannot be empty")
+    @Column(name = "description")
+    @JsonProperty("description")
+    private String description;
 
     @Column(name = "created_at", updatable = false)
     @JsonProperty("created_at")
@@ -43,4 +35,5 @@ public class CategoriesModel {
     @JsonProperty("updated_at")
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
 }

@@ -41,7 +41,7 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ sidebarCollapsed }) => {
       <div className="flex h-full items-center justify-between px-6">
         <div>
           <h1 className="text-lg font-semibold text-foreground">
-            Welcome back, {user?.role?.split(' ')[0] || 'Admin'}
+            Welcome back, {user?.username?.split(' ')[0] || 'Admin'}
           </h1>
           <p className="text-sm text-muted-foreground">
             Manage your pickle products and categories

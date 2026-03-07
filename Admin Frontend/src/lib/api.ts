@@ -42,17 +42,11 @@ export const authAPI = {
 
 // Categories APIs
 export const categoriesAPI = {
-    // getAll: () => api.get('/api/categories'),
-    // create: (data: { name: string; is_active: boolean }) =>
-    //   api.post('/api/categories', data),
-    // update: (id: string, data: { name?: string; is_active?: boolean }) =>
-    //   api.put(`/api/categories/${id}`, data),
-    // delete: (id: string) => api.delete(`/api/categories/${id}`),
 
-    create: (data: {name?: string, is_active?: boolean}) =>
+    create: (data: {category_name?: string, is_active?: boolean, image_url?: string}) =>
         api.post('/api/categories', data),
 
-    update:(id: string, data: {name?: string, is_active?: boolean}) =>
+    update:(id: string, data: {category_name?: string, is_active?: boolean, image_url?: string}) =>
         api.put(`/api/categories/${id}`, data),
 
     delete: (id: string) => api.delete(`/api/categories/${id}`),
@@ -128,6 +122,7 @@ export interface Product {
     product_id: string;
     product_name: string;
     product_description: string;
+    summarized_description: string;
     buy_link: string,
     product_image_url: string;
     is_available: boolean;
@@ -140,8 +135,10 @@ export interface Product {
 export interface ProductFormData {
     product_name: string;
     product_description: string;
+    summarized_description: string;
     category_id: string;
     product_image_url: string;
+    buy_link: string;
     is_available: boolean;
 }
 

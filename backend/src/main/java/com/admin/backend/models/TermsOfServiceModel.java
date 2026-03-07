@@ -12,14 +12,14 @@ import java.time.LocalDateTime;
 
 @Data
 @Entity
-@Table(name = "ReturnAndRefund")
+@Table(name = "TermsOfService")
 @EntityListeners(AuditingEntityListener.class)
-public class ReturnAndRefundModel {
+public class TermsOfServiceModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "return_and_refund_id")
-    @JsonProperty("return_and_refund_id")
-    private Long returnAndRefundId;
+    @Column(name = "terms_of_service_id")
+    @JsonProperty("terms_of_service_id")
+    private Long termsOfServiceId;
 
     @NotBlank(message = "Description cannot be empty")
     @Column(name = "description")

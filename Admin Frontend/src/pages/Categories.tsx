@@ -15,7 +15,7 @@ import {
 } from '@/components/ui/dialog';
 import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Category, categoriesAPI } from "@/lib/api.ts";
+import {Category, categoriesAPI, Product} from "@/lib/api.ts";
 
 
 const Categories: React.FC = () => {
@@ -23,7 +23,7 @@ const Categories: React.FC = () => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [formData, setFormData] = useState({ category_name: '', is_active: true });
+    const [formData, setFormData] = useState({ category_name: '', is_active: true , image_url: ''});
     const [isLoading, setIsLoading] = useState(false);
 
 
@@ -33,6 +33,7 @@ const Categories: React.FC = () => {
             const mapped = res.data.map((c) => ({
                 id: c.category_id,
                 category_name: c.category_name,
+                image_url: c.image_url,
                 is_active: c.is_active,
                 created_at: c.created_at,
                 updated_at: c.updated_at,
@@ -49,13 +50,13 @@ const Categories: React.FC = () => {
 
     const handleAdd = () => {
         setSelectedCategory(null);
-        setFormData({ category_name: '', is_active: true });
+        setFormData({ category_name: '', is_active: true, image_url: ''});
         setIsFormOpen(true);
     };
 
     const handleEdit = (category) => {
         setSelectedCategory(category);
-        setFormData({ category_name: category.category_name, is_active: category.is_active });
+        setFormData({ category_name: category.category_name, is_active: category.is_active, image_url: category.image_url });
         setIsFormOpen(true);
     };
 
@@ -73,12 +74,14 @@ const Categories: React.FC = () => {
                 await categoriesAPI.update(selectedCategory.id, {
                     category_name: formData.category_name,
                     is_active: formData.is_active,
+                    image_url: formData.image_url,
                 });
                 toast.success("Category updated");
             } else {
                 await categoriesAPI.create({
                     category_name: formData.category_name,
                     is_active: formData.is_active,
+                    image_url: formData.image_url,
                 });
                 toast.success("Category created");
             }
@@ -117,6 +120,7 @@ const Categories: React.FC = () => {
             await categoriesAPI.update(category.id, {
                 category_name: category.category_name,
                 is_active: !category.is_active,
+                image_url: category.image_url,
             });
             fetchCategories();
             toast.success("Status updated");
@@ -144,6 +148,19 @@ const Categories: React.FC = () => {
           </span>
                 </div>
             ),
+        },
+        {
+            header: 'Image URL',
+            cell: (row) => (
+                <a
+                    href={row.image_url}
+                    target="_blank"
+                    className="text-primary underline"
+                >
+                    View Image
+                </a>
+            ),
+
         },
         {
             header: 'Created',
@@ -232,6 +249,19 @@ const Categories: React.FC = () => {
                                         setFormData((prev) => ({ ...prev, category_name: e.target.value }))
                                     }
                                     placeholder="Enter category name"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="image_url">Image Url</Label>
+                                <Input
+                                    id="image_url"
+                                    value={formData.image_url}
+                                    type="url"
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, image_url: e.target.value }))
+                                    }
+                                    placeholder="https://example.com/image.jpg"
                                     required
                                 />
                             </div>

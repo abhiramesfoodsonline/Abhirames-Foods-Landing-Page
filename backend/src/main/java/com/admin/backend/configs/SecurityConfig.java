@@ -72,8 +72,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/contact-us", "/api/contact-us/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
 
                         // Return Refund Access
-                        .requestMatchers(HttpMethod.GET, "/api/return-refund").permitAll()
-                        .requestMatchers("/api/return-refund", "/api/return-refund/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/refund-policy").permitAll()
+                        .requestMatchers("/api/refund-policy", "/api/refund-policy/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
 
                         // Social Media Access
                         .requestMatchers(HttpMethod.GET, "/api/social-media").permitAll()

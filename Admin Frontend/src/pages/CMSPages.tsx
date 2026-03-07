@@ -3,10 +3,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Loader2, FileText, Info, Phone, HelpCircle, RotateCcw, Save } from 'lucide-react';
+import {Loader2, FileText, Info, Phone, HelpCircle, RotateCcw, Save, Truck, Shield} from 'lucide-react';
 import { toast } from 'sonner';
 import { LucideIcon } from 'lucide-react';
 import {cmsAPI} from "@/lib/api.ts";
+import {Document} from "postcss";
 
 interface CMSPage {
   slug: string;
@@ -18,8 +19,10 @@ interface CMSPage {
 const pageDefinitions = [
     { slug: 'about-us', title: 'About Us', icon: Info },
     { slug: 'contact-us', title: 'Contact Us', icon: Phone },
-    { slug: 'faqs', title: 'FAQs', icon: HelpCircle },
-    { slug: 'returns-refund', title: 'Returns & Refund', icon: RotateCcw },
+    { slug: 'refund-policy', title: 'Refund Policy', icon: RotateCcw },
+    { slug: 'privacy-policy', title: 'Privacy Policy', icon: Shield },
+    { slug: 'shipping-policy', title: 'Shipping Policy', icon: Truck },
+    { slug: 'terms-of-service', title: 'Terms of Service', icon: HelpCircle },
 ];
 
 const CMSPages: React.FC = () => {
@@ -100,7 +103,7 @@ const CMSPages: React.FC = () => {
         </CardHeader>
         <CardContent>
           <Tabs value={activeTab} onValueChange={setActiveTab}>
-            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-4 mb-6">
+            <TabsList className="grid w-full grid-cols-2 lg:grid-cols-6 mb-6">
               {pages.map((page) => (
                 <TabsTrigger
                   key={page.slug}

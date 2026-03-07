@@ -28,6 +28,7 @@ import {Product, Category, categoriesAPI, productsAPI} from '@/lib/api';
 const emptyFormData = {
     product_name: '',
     product_description: '',
+    summarized_description: '',
     category_id: '',
     product_image_url: '',
     buy_link: '',
@@ -70,6 +71,7 @@ const Products: React.FC = () => {
                 product_id: p.product_id,
                 product_name: p.product_name,
                 product_description: p.product_description,
+                summarized_description: p.summarized_description,
                 buy_link: p.buy_link,
                 product_image_url: p.product_image_url,
                 category_id: p.category_id,
@@ -112,6 +114,7 @@ const Products: React.FC = () => {
         setFormData({
             product_name: product.product_name,
             product_description: product.product_description,
+            summarized_description: product.summarized_description,
             buy_link: product.buy_link,
             category_id: product.category_id,
             product_image_url: product.product_image_url,
@@ -134,6 +137,7 @@ const Products: React.FC = () => {
                 await productsAPI.update(selectedProduct.product_id, {
                     product_name: formData.product_name,
                     product_description: formData.product_description,
+                    summarized_description: formData.summarized_description,
                     buy_link: formData.buy_link,
                     category_id: formData.category_id,
                     product_image_url: formData.product_image_url,
@@ -144,6 +148,7 @@ const Products: React.FC = () => {
                 await productsAPI.create({
                     product_name: formData.product_name,
                     product_description: formData.product_description,
+                    summarized_description: formData.summarized_description,
                     buy_link: formData.buy_link,
                     category_id: formData.category_id,
                     product_image_url: formData.product_image_url,
@@ -185,6 +190,7 @@ const Products: React.FC = () => {
             await productsAPI.update(product.product_id, {
                 product_name: product.product_name,
                 product_description: product.product_description,
+                summarized_description: product.summarized_description,
                 buy_link: product.buy_link,
                 category_id: product.category_id,
                 product_image_url: product.product_image_url,
@@ -208,7 +214,7 @@ const Products: React.FC = () => {
                     <div>
                         <p className="font-medium text-foreground">{row.product_name}</p>
                         <p className="text-sm text-muted-foreground truncate max-w-xs">
-                            {row.product_description}
+                            {row.summarized_description}
                         </p>
                     </div>
                 </div>
@@ -374,6 +380,20 @@ const Products: React.FC = () => {
                                     }
                                     placeholder="Enter product description"
                                     rows={3}
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="summarized_description">Summarized Description</Label>
+                                <Textarea
+                                    id="summarized_description"
+                                    value={formData.summarized_description}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, summarized_description: e.target.value }))
+                                    }
+                                    placeholder="Enter summarized description"
+                                    rows={3}
+                                    required
                                 />
                             </div>
                             <div className="grid grid-cols-2 gap-4">
@@ -419,6 +439,7 @@ const Products: React.FC = () => {
                                     onChange={(e) =>
                                         setFormData((prev) => ({ ...prev, product_image_url: e.target.value }))
                                     }
+                                    required
                                     placeholder="https://example.com/image.jpg"
                                 />
                             </div>
