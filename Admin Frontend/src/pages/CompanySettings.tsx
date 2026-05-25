@@ -293,7 +293,7 @@ const CompanySettings: React.FC = () => {
                         <div className="space-y-2">
                             <Label htmlFor="whatsapp" className="flex items-center gap-2">
                                 <Phone className="h-4 w-4 text-muted-foreground" />
-                                WhatsApp Number
+                                WhatsApp Link
                             </Label>
                             <Input
                                 id="whatsapp"

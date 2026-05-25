@@ -94,17 +94,6 @@ const Login: React.FC = () => {
                 )}
               </Button>
             </form>
-
-            {/* Demo credentials */}
-            <div className="mt-6 p-4 rounded-lg bg-muted/50 border border-border">
-              <p className="text-sm font-medium text-foreground mb-2">Demo Credentials:</p>
-              <p className="text-sm text-muted-foreground">
-                Email: <code className="bg-background px-1 py-0.5 rounded text-foreground">admin@pickle.com</code>
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Password: <code className="bg-background px-1 py-0.5 rounded text-foreground">admin123</code>
-              </p>
-            </div>
           </CardContent>
         </Card>
 

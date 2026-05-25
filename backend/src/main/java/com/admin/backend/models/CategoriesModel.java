@@ -25,6 +25,16 @@ public class CategoriesModel {
     @Column(name = "category_name", unique = true)
     @JsonProperty("category_name")
     private String categoryName;
+
+    @NotBlank(message = "Description cannot be empty")
+    @Column(name = "description")
+    @JsonProperty("description")
+    private String description;
+
+    @NotBlank(message = "title cannot be empty")
+    @Column(name = "title")
+    @JsonProperty("title")
+    private String title;
     
     @Column(name = "is_active")
     @JsonProperty("is_active")

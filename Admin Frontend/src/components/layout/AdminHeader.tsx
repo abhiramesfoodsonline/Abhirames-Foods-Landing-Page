@@ -49,14 +49,6 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ sidebarCollapsed }) => {
         </div>
 
         <div className="flex items-center gap-4">
-          {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-5 w-5 text-muted-foreground" />
-            <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-accent text-[10px] font-bold flex items-center justify-center text-accent-foreground">
-              3
-            </span>
-          </Button>
-
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -67,8 +59,8 @@ const AdminHeader: React.FC<AdminHeaderProps> = ({ sidebarCollapsed }) => {
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden md:block text-left">
-                  <p className="text-sm font-medium text-foreground">{user?.role}</p>
-                  <p className="text-xs text-muted-foreground">{user?.username}</p>
+                  <p className="text-sm font-medium text-foreground">{user?.username}</p>
+                  <p className="text-xs text-muted-foreground">{user?.role}</p>
                 </div>
               </Button>
             </DropdownMenuTrigger>

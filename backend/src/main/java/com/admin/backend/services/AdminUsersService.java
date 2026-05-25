@@ -5,6 +5,7 @@ import com.admin.backend.exceptions.ResourceConflictException;
 import com.admin.backend.exceptions.ResourceNotFoundException;
 import com.admin.backend.models.AdminUsersModel;
 import com.admin.backend.repositories.AdminUsersRepository;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,10 @@ public class AdminUsersService {
         
         return adminUsersRepository.save(adminUsersModel);
     }
+
+    public List<AdminUsersModel> fetchAllAdminUsers(){
+        return adminUsersRepository.findAll();
+    }
     
     public AdminUsersModel fetchAdminUserByAdminId(Long adminId){
         return adminUsersRepository.findById(adminId)
@@ -36,7 +41,9 @@ public class AdminUsersService {
     }
 
     public AdminUsersModel fetchAdminUserByUsername(String username){
+        System.out.println("Message from AdminUsersService.java. 43. " + username);
         AdminUsersModel user = adminUsersRepository.findByUsername(username);
+        System.out.println("Message from AdminUsersService.java. 45. " + user);
         if (user == null){
             throw new ResourceNotFoundException("Admin user not found with username: " + username + ".");
         }
@@ -96,10 +103,25 @@ public class AdminUsersService {
         if (!passwordEncoder.matches(request.getCurrentPassword(), existingAdminUserModel.getPassword())){
             throw new IllegalArgumentException("Current password is incorrect.");
         }
-        
+
         existingAdminUserModel.setPassword(passwordEncoder.encode(request.getNewPassword()));
         
         adminUsersRepository.save(existingAdminUserModel);
+    }
+
+    public void updateAdminRole(String username, String role){
+        if (username == null || role == null) {
+            throw new IllegalArgumentException(username == null ? "Username" : "Role" + "is empty");
+        }
+
+        AdminUsersModel existingAdminUserModel = fetchAdminUserByUsername(username);
+        if (existingAdminUserModel == null) {
+            throw new ResourceNotFoundException("Admin not found with username: " + username + ".");
+        }
+
+        existingAdminUserModel.setRole(role);
+        adminUsersRepository.save(existingAdminUserModel);
+
     }
     
 //    public AdminUsersModel updateAdminUser(Long adminId, AdminUsersModel updatedAdminUserModel){
@@ -118,19 +140,18 @@ public class AdminUsersService {
 //
 //        return adminUsersRepository.save(existingAdminUserModel);
 //    }
-    
-    public String deleteAdminUser(Long adminId){
-        if (adminId == null){
-            throw new IllegalArgumentException("Admin id cannot be empty.");
+
+    @Transactional
+    public void deleteAdminUser(String username){
+        if (username == null){
+            throw new IllegalArgumentException("Username cannot be empty.");
         }
         
-        AdminUsersModel adminUsersModel = fetchAdminUserByAdminId(adminId);
+        AdminUsersModel adminUsersModel = fetchAdminUserByUsername(username);
         if (adminUsersModel == null){
-            throw new ResourceNotFoundException("Admin user not found with id: " + adminId + ".");
+            throw new ResourceNotFoundException("Admin not found with username: " + username + ".");
         }
-        
-        String username = adminUsersModel.getUsername();
-        adminUsersRepository.deleteById(adminId);
-        return username;
+
+        adminUsersRepository.deleteByUsername(username);
     }
 }

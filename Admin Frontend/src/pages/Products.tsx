@@ -1,4 +1,4 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useMemo, useState} from 'react';
 import DataTable from '@/components/ui/DataTable';
 import ConfirmDialog from '@/components/ui/ConfirmDialog';
 import { Button } from '@/components/ui/button';
@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
 import {
     Select,
     SelectContent,
@@ -21,14 +22,17 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Loader2, Filter, Package } from 'lucide-react';
+import {Plus, Pencil, Trash2, Loader2, Filter, Package, Search} from 'lucide-react';
 import { toast } from 'sonner';
-import {Product, Category, categoriesAPI, productsAPI} from '@/lib/api';
+import {Product, Category, categoriesAPI, productsAPI, trendingProductsAPI} from '@/lib/api';
+import {useAuth} from "@/contexts/AuthContext.tsx";
+
+
 
 const emptyFormData = {
     product_name: '',
     product_description: '',
-    summarized_description: '',
+    title: '',
     category_id: '',
     product_image_url: '',
     buy_link: '',
@@ -38,12 +42,18 @@ const emptyFormData = {
 const Products: React.FC = () => {
     const [products, setProducts] = useState<Product[]>([]);
     const [categories, setCategories] = useState<Category[]>([]);
+    const [trendingProducts, setTrendingProducts] = useState<string[]>([]);
     const [filterCategory, setFilterCategory] = useState<number | 'all'>('all');
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
     const [formData, setFormData] = useState(emptyFormData);
     const [isLoading, setIsLoading] = useState(false);
+    const { user } = useAuth();
+    const isSuperAdmin = user?.role === "SUPER_ADMIN";
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterAvailability, setFilterAvailability] = useState<string>('all');
+    const TRENDING_LIMIT = 4;
 
     const fetchCategories = async () => {
         try {
@@ -71,7 +81,7 @@ const Products: React.FC = () => {
                 product_id: p.product_id,
                 product_name: p.product_name,
                 product_description: p.product_description,
-                summarized_description: p.summarized_description,
+                title: p.title,
                 buy_link: p.buy_link,
                 product_image_url: p.product_image_url,
                 category_id: p.category_id,
@@ -97,11 +107,52 @@ const Products: React.FC = () => {
         if (categories.length) fetchProducts();
     }, [categories]);
 
-    const filteredProducts =
-        filterCategory === 'all'
-            ? products
-            : products.filter((p) => p.category_id === filterCategory);
+    useEffect(() => {
+        const fetchTrending = async () => {
+            try {
+                const res = await trendingProductsAPI.getAll();
+                console.log('Trending products:', res.data);
+                const trendingIds = res.data.map((tp) => tp.product_id);
+                setTrendingProducts(trendingIds);
+            } catch (e) {
+                toast.error('Failed to load trending products: ' + e.message);
+            }
+        };
+        fetchTrending();
+    }, []);
 
+
+
+    // const filteredProducts =
+    //     filterCategory === 'all'
+    //         ? products
+    //         : products.filter((p) => p.category_id === filterCategory);
+
+    const filteredProducts = useMemo(() => {
+        let data = [...products];
+
+        if (filterCategory !== 'all') {
+            data = data.filter((p) => p.category_id === filterCategory);
+        }
+
+        if (filterAvailability !== 'all') {
+            data = data.filter((p) =>
+                filterAvailability === 'available' ? p.is_available : !p.is_available
+            );
+        }
+
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            data = data.filter(
+                (p) =>
+                    p.product_name?.toLowerCase().includes(q) ||
+                    p.category_name?.toLowerCase().includes(q) ||
+                    p.title?.toLowerCase().includes(q)
+            );
+        }
+
+        return data;
+    }, [products, filterCategory, filterAvailability, searchQuery]);
 
     const handleAdd = () => {
         setSelectedProduct(null);
@@ -114,7 +165,7 @@ const Products: React.FC = () => {
         setFormData({
             product_name: product.product_name,
             product_description: product.product_description,
-            summarized_description: product.summarized_description,
+            title: product.title,
             buy_link: product.buy_link,
             category_id: product.category_id,
             product_image_url: product.product_image_url,
@@ -137,7 +188,7 @@ const Products: React.FC = () => {
                 await productsAPI.update(selectedProduct.product_id, {
                     product_name: formData.product_name,
                     product_description: formData.product_description,
-                    summarized_description: formData.summarized_description,
+                    title: formData.title,
                     buy_link: formData.buy_link,
                     category_id: formData.category_id,
                     product_image_url: formData.product_image_url,
@@ -148,7 +199,7 @@ const Products: React.FC = () => {
                 await productsAPI.create({
                     product_name: formData.product_name,
                     product_description: formData.product_description,
-                    summarized_description: formData.summarized_description,
+                    title: formData.title,
                     buy_link: formData.buy_link,
                     category_id: formData.category_id,
                     product_image_url: formData.product_image_url,
@@ -174,6 +225,12 @@ const Products: React.FC = () => {
             toast.success('Product deleted successfully');
             fetchProducts();
         } catch (e) {
+            console.log(e.response.status);
+            console.log(e);
+            if (e.response?.status === 409 || e.response?.data === "PRODUCT_IN_USE"){
+                toast.error('Cannot remove a product that is currently trending. Please remove it from the trending section first.');
+                return;
+            }
             toast.error(
                 'Delete Failed: ' +
                 selectedProduct.product_name +
@@ -190,7 +247,7 @@ const Products: React.FC = () => {
             await productsAPI.update(product.product_id, {
                 product_name: product.product_name,
                 product_description: product.product_description,
-                summarized_description: product.summarized_description,
+                title: product.title,
                 buy_link: product.buy_link,
                 category_id: product.category_id,
                 product_image_url: product.product_image_url,
@@ -203,6 +260,36 @@ const Products: React.FC = () => {
         }
     };
 
+
+const toggleTrending = async (product: Product) => {
+    const isCurrentlyTrending = trendingProducts.includes(product.product_id);
+
+    // Block adding if limit reached
+    if (!isCurrentlyTrending && trendingProducts.length >= TRENDING_LIMIT) {
+        toast.error(`You can only have ${TRENDING_LIMIT} trending products at a time.`);
+        return;
+    }
+
+    try {
+        if (isCurrentlyTrending) {
+            const trendingEntry = await trendingProductsAPI.getAll().then(res =>
+                res.data.find((tp) => tp.product_id === product.product_id)
+            );
+            if (trendingEntry) {
+                await trendingProductsAPI.delete(trendingEntry.trending_product_id);
+                setTrendingProducts((prev) => prev.filter((id) => id !== product.product_id));
+                toast.success('Removed from trending');
+            }
+        } else {
+            await trendingProductsAPI.create({ product_id: product.product_id });
+            setTrendingProducts((prev) => [...prev, product.product_id]);
+            toast.success('Added to trending');
+        }
+    } catch (e) {
+        toast.error('Failed to update trending status: ' + e.message);
+    }
+};
+
     const columns = [
         {
             header: 'Product',
@@ -214,7 +301,7 @@ const Products: React.FC = () => {
                     <div>
                         <p className="font-medium text-foreground">{row.product_name}</p>
                         <p className="text-sm text-muted-foreground truncate max-w-xs">
-                            {row.summarized_description}
+                            {row.title}
                         </p>
                     </div>
                 </div>
@@ -272,6 +359,40 @@ const Products: React.FC = () => {
                 </div>
             ),
         },
+        // {
+        //     header: 'Trending',
+        //     cell: (row: Product) => (
+        //         <div className="flex items-center gap-2">
+        //             <Checkbox
+        //                 checked={trendingProducts.includes(row.product_id)}
+        //                 onCheckedChange={() => toggleTrending(row)}
+        //             />
+        //         </div>
+        //     ),
+        // },
+           {
+    header: `Trending (${trendingProducts.length}/${TRENDING_LIMIT})`,
+    cell: (row: Product) => {
+        const isTrending = trendingProducts.includes(row.product_id);
+        const isDisabled = !isTrending && trendingProducts.length >= TRENDING_LIMIT;
+
+        return (
+            <div className="flex items-center gap-2">
+                <Checkbox
+                    checked={isTrending}
+                    onCheckedChange={() => toggleTrending(row)}
+                    disabled={isDisabled}
+                    className="h-5 w-5 rounded-01 border-2 border-muted-foreground 
+                               data-[state=checked]:bg-primary 
+                               data-[state=checked]:border-primary
+                               data-[state=checked]:text-primary-foreground
+                               transition-colors cursor-pointer
+                               disabled:opacity-40 disabled:cursor-not-allowed"
+                />
+            </div>
+        );
+    },
+},
         {
             header: 'Actions',
             cell: (row: Product) => (
@@ -288,6 +409,7 @@ const Products: React.FC = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(row)}
+                        disabled={!isSuperAdmin}
                         className="h-8 w-8 text-destructive hover:text-destructive"
                     >
                         <Trash2 className="h-4 w-4" />
@@ -302,7 +424,10 @@ const Products: React.FC = () => {
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Products</h1>
-                    <p className="text-muted-foreground">Manage your pickle products</p>
+                    {/*<p className="text-muted-foreground">Manage your pickle products</p>*/}
+                    <p className="text-muted-foreground">
+                        {filteredProducts.length} of {products.length} products
+                    </p>
                 </div>
                 <div className="flex items-center gap-3 w-full sm:w-auto">
                     <div className="flex items-center gap-2 flex-1 sm:flex-none">
@@ -334,6 +459,29 @@ const Products: React.FC = () => {
                         Add Product
                     </Button>
                 </div>
+            </div>
+
+            {/* Search + Availability Filter */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search by name, category or title..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9"
+                    />
+                </div>
+                <Select value={filterAvailability} onValueChange={setFilterAvailability}>
+                    <SelectTrigger className="w-full sm:w-44">
+                        <SelectValue placeholder="Filter by availability" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="available">Available</SelectItem>
+                        <SelectItem value="unavailable">Unavailable</SelectItem>
+                    </SelectContent>
+                </Select>
             </div>
 
             {/* Data Table */}
@@ -371,6 +519,18 @@ const Products: React.FC = () => {
                                 />
                             </div>
                             <div className="space-y-2">
+                                <Label htmlFor="title">Title</Label>
+                                <Textarea
+                                    id="title"
+                                    value={formData.title}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, title: e.target.value }))
+                                    }
+                                    placeholder="Enter title"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
                                 <Label htmlFor="description">Description</Label>
                                 <Textarea
                                     id="description"
@@ -379,19 +539,6 @@ const Products: React.FC = () => {
                                         setFormData((prev) => ({ ...prev, product_description: e.target.value }))
                                     }
                                     placeholder="Enter product description"
-                                    rows={3}
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <Label htmlFor="summarized_description">Summarized Description</Label>
-                                <Textarea
-                                    id="summarized_description"
-                                    value={formData.summarized_description}
-                                    onChange={(e) =>
-                                        setFormData((prev) => ({ ...prev, summarized_description: e.target.value }))
-                                    }
-                                    placeholder="Enter summarized description"
                                     rows={3}
                                     required
                                 />

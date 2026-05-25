@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import { toast } from 'sonner';
-import { authAPI } from "@/lib/api";
+import { authAPI, adminUsersAPI } from "@/lib/api";
 
 interface User {
     id: string;
     username: string;
     role: string;
+
 }
 
 interface AuthContextType {
@@ -89,21 +90,28 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
             const token = response.data;
             
             if (response.status === 200 && token) {
-                const decoded = decodeJwt(token);
+                // const decoded = decodeJwt(token);
                 // Construct user object safely (do not store password)
-                const userData: User = {
-                    id: decoded?.id || 'admin',
-                    username: decoded?.sub || username,
-                    role: decoded?.role || 'Admin'
-                };
+                // const userData: User = {
+                //     id: decoded?.id || 'admin',
+                //     username: decoded?.sub || username,
+                //     role: decoded?.role || 'Admin'
+                // };
 
                 localStorage.setItem('admin_token', token);
-                localStorage.setItem('admin_user', JSON.stringify(userData));
-                setUser(userData);
+
+                // Fetch user from server
+                const userProfile = await adminUsersAPI.getMe(username)
+                setUser(userProfile.data);
+                console.log(userProfile);
+
+
+                localStorage.setItem('admin_user', JSON.stringify(userProfile.data));
+
                 toast.success('Welcome back!');
                 return true;
             } else {
-                console.log(response);
+                console.log(response + " Error console");
                 toast.error('Invalid credentials');
                 return false;
             }

@@ -14,6 +14,8 @@ public interface AdminUsersRepository extends JpaRepository<AdminUsersModel, Lon
     List<AdminUsersModel> findAllByCreatedAtBefore(LocalDateTime createdAtBefore);
 
     Boolean existsByUsername(String username);
+
+    void deleteByUsername(String username);
     
 
 }

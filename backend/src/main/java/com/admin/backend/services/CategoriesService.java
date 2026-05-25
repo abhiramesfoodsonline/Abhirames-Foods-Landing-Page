@@ -96,30 +96,35 @@ public class CategoriesService {
         }
 
         existingCategory.setCategoryName(updatedCategory.getCategoryName());
+        existingCategory.setDescription(updatedCategory.getDescription());
+        existingCategory.setTitle(updatedCategory.getTitle());
+        existingCategory.setImageUrl(updatedCategory.getImageUrl());
         existingCategory.setActive(updatedCategory.isActive());
         existingCategory.setUpdatedAt(LocalDateTime.now());
         
         return categoriesRepository.save(existingCategory);
     }
-    
+
     @Transactional
-    public String deleteCategory(Long categoryId){
-        if (categoryId == null){
+    public String deleteCategory(Long categoryId) {
+        if (categoryId == null) {
             throw new IllegalArgumentException("Category id cannot be empty.");
         }
         CategoriesModel existingCategory = fetchCategoryById(categoryId);
-        if (existingCategory == null){
+        if (existingCategory == null) {
             throw new ResourceNotFoundException("Category not found with id: " + categoryId);
         }
-        
+
         String categoryName = existingCategory.getCategoryName();
-        
+
         try {
             categoriesRepository.deleteById(categoryId);
+            categoriesRepository.flush();
         } catch (DataIntegrityViolationException e) {
-            throw new ResourceConflictException("Category A " + categoryName + " contains products.");
+            System.out.println("Caught: " + e.getMessage());
+            throw new ResourceConflictException("Category " + categoryName + " contains products.");
         }
-        
+
         return categoryName;
     }
 }

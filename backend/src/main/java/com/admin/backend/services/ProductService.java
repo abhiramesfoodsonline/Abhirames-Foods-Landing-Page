@@ -1,14 +1,19 @@
 package com.admin.backend.services;
 
+import com.admin.backend.exceptions.ProductInUseException;
 import com.admin.backend.exceptions.ResourceConflictException;
 import com.admin.backend.exceptions.ResourceNotFoundException;
 import com.admin.backend.models.ProductModel;
 import com.admin.backend.repositories.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -55,7 +60,7 @@ public class ProductService {
     }
 
     public ProductModel updateProduct(Long id, ProductModel product){
-        if(id == null || product == null || product.getProductName() == null || product.getProductDescription() == null || product.getBuyLink() == null || product.getProductImageUrl() == null || product.getSummarizedDescription() == null){
+        if(id == null || product == null || product.getProductName() == null || product.getProductDescription() == null || product.getBuyLink() == null || product.getProductImageUrl() == null || product.getTitle() == null){
             System.out.println(product);
             throw new IllegalArgumentException("One or more required fields are empty or null.");
         }
@@ -66,7 +71,7 @@ public class ProductService {
         }
         existingProduct.setProductName(product.getProductName());
         existingProduct.setProductDescription(product.getProductDescription());
-        existingProduct.setSummarizedDescription(product.getSummarizedDescription());
+        existingProduct.setTitle(product.getTitle());
         existingProduct.setBuyLink(product.getBuyLink());
         existingProduct.setProductImageUrl(product.getProductImageUrl());
         existingProduct.setAvailable(product.isAvailable());
@@ -83,16 +88,21 @@ public class ProductService {
     }
 
     public String deleteProduct(Long productId){
-        if (productId == null){
-            throw new IllegalArgumentException("Product id cannot be empty.");
+        try{
+            if (productId == null){
+                throw new IllegalArgumentException("Product id cannot be empty.");
+            }
+            ProductModel existingProduct = fetchProduct(productId);
+            if (existingProduct == null){
+                throw new ResourceNotFoundException("Product not found with id: " + productId);
+            }
+            String productName = existingProduct.getProductName();
+            productRepository.deleteById(productId);
+            return productName;
         }
-        ProductModel existingProduct = fetchProduct(productId);
-        if (existingProduct == null){
-            throw new ResourceNotFoundException("Product not found with id: " + productId);
+        
+        catch (DataIntegrityViolationException e){
+            throw new ProductInUseException("PRODUCT_IN_USE");
         }
-        String productName = existingProduct.getProductName();
-        productRepository.deleteById(productId);
-        return productName;
     }
-
 }

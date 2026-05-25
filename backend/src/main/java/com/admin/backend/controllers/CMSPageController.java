@@ -10,8 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/cms")
+// TODO
+// Temporarily blocking CMS. Requested by Client.
+// @RestController
+// @RequestMapping("/api/cms")
 public class CMSPageController {
     
     @Autowired

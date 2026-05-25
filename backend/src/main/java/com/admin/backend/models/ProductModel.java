@@ -31,10 +31,10 @@ public class ProductModel {
     @JsonProperty("product_description")
     private String productDescription;
 
-    @NotBlank(message = "Summarized description cannot be empty")
-    @Column(name = "summarized_description")
-    @JsonProperty("summarized_description")
-    private String summarizedDescription;
+    @NotBlank(message = "title cannot be empty")
+    @Column(name = "title")
+    @JsonProperty("title")
+    private String title;
 
     @NotBlank(message = "Buy Link cannot be empty")
     @Column(name = "buy_link")

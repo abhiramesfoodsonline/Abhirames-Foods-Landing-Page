@@ -4,12 +4,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
+// import { useToast } from "@/hooks/use-toast";
 import { adminUsersAPI } from "@/lib/api";
+import {toast} from "sonner";
 
 
 const Profile = () => {
-    const { toast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
 
@@ -38,13 +38,16 @@ const Profile = () => {
                 setFormData({
                     username: res.data.username,
                     current_password: "",
+                    new_password1: "",
+                    new_password2: "",
                 });
             } catch (e) {
-                toast({
-                    variant: "destructive",
-                    title: "Failed to load profile",
-                    description: e.message,
-                });
+                // toast({
+                //     variant: "destructive",
+                //     title: "Failed to load profile",
+                //     description: e.message,
+                // });
+                toast.error("Failed to load profile. " + e.message);
             }
         };
 
@@ -64,11 +67,8 @@ const Profile = () => {
         try {
             
             if (formData.new_password1 !== formData.new_password2) {
-                toast({
-                    variant: "destructive",
-                    title: "Update failed",
-                    description: "New passwords do not match.",
-                });
+                toast.error("Update failed! New passwords do not match.");
+                setIsLoading(false);
                 return;
             }
             
@@ -81,18 +81,23 @@ const Profile = () => {
                 newPassword: formData.new_password1,
             });
 
-            toast({
-                title: "Profile updated",
-                description: "Your account details have been saved successfully.",
-            });
+            // toast({
+            //     title: "Profile updated",
+            //     description: "Your account details have been saved successfully.",
+            // });
+            toast.success("Your account details have been saved successfully.");
 
-            setFormData((prev) => ({ ...prev, password: "" }));
+            setFormData((prev) => ({ ...prev, current_password: "", new_password1: "", new_password2: "" }));
         } catch (e) {
-            toast({
-                variant: "destructive",
-                title: "Update failed",
-                description: e.message,
-            });
+            // toast({
+            //     variant: "destructive",
+            //     title: "Update failed",
+            //     description: e.message,
+            // });
+            if (e.response.status === 400) {
+                toast.error("Incorrect password! " + e.response.data);
+            }
+            // toast.error("Update failed. " + e.message);
         } finally {
             setIsLoading(false);
         }

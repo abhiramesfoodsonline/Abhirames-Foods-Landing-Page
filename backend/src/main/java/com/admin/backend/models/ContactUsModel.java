@@ -18,6 +18,7 @@ public class ContactUsModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "contact_us_id")
+    @JsonProperty("contact_us_id")
     private Long contactUsId;
 
     @NotBlank(message = "Phone Number cannot be empty")

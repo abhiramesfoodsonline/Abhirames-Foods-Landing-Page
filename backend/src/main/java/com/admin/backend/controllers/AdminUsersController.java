@@ -26,15 +26,36 @@ public class AdminUsersController {
         return new ResponseEntity<>(adminUsersService.createAdminUser(adminUsersModel), HttpStatus.OK);
     }
 
+    @GetMapping
+    ResponseEntity<List<AdminUsersModel>> fetchAdminUsers() {
+        return new ResponseEntity<>(adminUsersService.fetchAllAdminUsers(), HttpStatus.OK);
+    }
+
     @GetMapping("/{adminId}")
     ResponseEntity<AdminUsersModel> fetchAdminUserByAdminId(@PathVariable Long adminId){
         return new ResponseEntity<>(adminUsersService.fetchAdminUserByAdminId(adminId), HttpStatus.OK);
     }
 
+//    @GetMapping("/search-username/{userName}")
+//    ResponseEntity<AdminUsersModel> fetchAdminUserByUserName(@PathVariable String userName){
+//        System.out.println(userName);
+//        return new ResponseEntity<>(adminUsersService.fetchAdminUserByUsername(userName), HttpStatus.OK);
+//    }
+
     @GetMapping("/search-username/{userName}")
     ResponseEntity<AdminUsersModel> fetchAdminUserByUserName(@PathVariable String userName){
-        return new ResponseEntity<>(adminUsersService.fetchAdminUserByUsername(userName), HttpStatus.OK);
+        System.out.println(userName + "Hello");
+        AdminUsersModel user = adminUsersService.fetchAdminUserByUsername(userName);
+
+        System.out.println(user);
+        if (user != null) {
+            return new ResponseEntity<>(user, HttpStatus.OK);
+        } else {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
     }
+
+
 
     @GetMapping("/search-role/{role}")
     ResponseEntity<List<AdminUsersModel>> fetchAdminUsersByRole(@PathVariable String role){
@@ -53,15 +74,27 @@ public class AdminUsersController {
     
 
     @PutMapping("/{username}")
-    ResponseEntity<Void> updateAdminUserModel(@PathVariable String username, @RequestBody ChangePasswordRequest updatedAdminUserModel){
+    ResponseEntity<Void> updateAdminPassword(@PathVariable String username, @RequestBody ChangePasswordRequest updatedAdminUserModel){
         adminUsersService.updateAdminUser(username, updatedAdminUserModel);
         return ResponseEntity.ok().build();
         
     }
+
+    @PutMapping("/update-role")
+    ResponseEntity<Void> updateAdminRole(@RequestParam String username, @RequestParam String role){
+        adminUsersService.updateAdminRole(username, role);
+        return ResponseEntity.ok().build();
+    }
     
-    @DeleteMapping
-    ResponseEntity<String> deleteAdminUser(@RequestParam Long adminId){
-        return new ResponseEntity<>(adminUsersService.deleteAdminUser(adminId), HttpStatus.OK);
+    @DeleteMapping("/{username}")
+    ResponseEntity<Void> deleteAdminUser(@PathVariable String username){
+        try {
+            adminUsersService.deleteAdminUser(username);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
+        return ResponseEntity.ok().build();
+
     }
 
 }

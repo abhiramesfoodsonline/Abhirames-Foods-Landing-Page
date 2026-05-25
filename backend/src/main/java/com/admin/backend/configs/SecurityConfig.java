@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.Customizer;
@@ -28,10 +29,10 @@ public class SecurityConfig {
     private CustomUserDetailsService userDetailsService;
     @Autowired
     private JwtFilter jwtFilter;
-    
-    
+
+
 // TODO CAUSATION: UNCOMMENT THE BELOW CODE IF THE AUTOWIRED IN  'jwtFilter' AND 'userDetailsService' FAILS.
-    
+
 //    public SecurityConfig(CustomUserDetailsService userDetailsService, JwtFilter jwtFilter) {
 //        this.userDetailsService = userDetailsService;
 //        this.jwtFilter = jwtFilter;
@@ -45,22 +46,26 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/login").permitAll()
 
-                        // TODO Allow creating the FIRST admin user openly (Disable this line later for production!)
-                        .requestMatchers(HttpMethod.POST, "/api/admin-users").permitAll()
-                        .requestMatchers("/api/admin-users", "/api/admin-users/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
 
+                        // Admin Users Access
+                        .requestMatchers(HttpMethod.POST, "/api/admin-users").hasAuthority("SUPER_ADMIN")
 
+                        .requestMatchers(HttpMethod.GET, "/api/admin-users", "/api/admin-users/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers(HttpMethod.PUT, "/api/admin-users/**").hasAnyAuthority("SUPER_ADMIN", "ADMIN")
+                        .requestMatchers(HttpMethod.DELETE, "/api/admin-users").hasAuthority("SUPER_ADMIN") // probably SUPER_ADMIN only too
 
                         // About Us Access
                         .requestMatchers(HttpMethod.GET, "/api/about-us").permitAll()
-                        .requestMatchers("/api/about-us", "/api/about-us/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+                        .requestMatchers("/api/about-us", "/api/about-us/**").hasAnyAuthority("SUPER_ADMIN")
 
                         // Category Access
                         .requestMatchers(HttpMethod.GET, "/api/categories").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/categories/**").permitAll()
                         .requestMatchers("/api/categories", "/api/categories/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
 
                         // Product Access
-                        .requestMatchers(HttpMethod.GET, "/api/products").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/**").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/products/search/recent").permitAll()
                         .requestMatchers("/api/products", "/api/products/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
 
                         // FAQs Access
@@ -68,8 +73,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/faqs", "/api/faqs/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
 
                         // Contact Us Access
-                        .requestMatchers(HttpMethod.GET, "/api/contactUs").permitAll()
-                        .requestMatchers("/api/contact-us", "/api/contact-us/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+                        .requestMatchers(HttpMethod.GET, "/api/contact-us/**").permitAll()
+                        .requestMatchers("/api/contact-us", "/api/contact-us/**").hasAnyAuthority( "SUPER_ADMIN")
 
                         // Return Refund Access
                         .requestMatchers(HttpMethod.GET, "/api/refund-policy").permitAll()
@@ -77,20 +82,33 @@ public class SecurityConfig {
 
                         // Social Media Access
                         .requestMatchers(HttpMethod.GET, "/api/social-media").permitAll()
-                        .requestMatchers("/api/social-media", "/api/social-media/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+                        .requestMatchers("/api/social-media", "/api/social-media/**").hasAnyAuthority("SUPER_ADMIN")
 
                         // Company Profile Access
                         .requestMatchers(HttpMethod.GET, "/api/company-profile").permitAll()
-                        .requestMatchers("/api/company-profile", "/api/company-profile/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
+                        .requestMatchers("/api/company-profile", "/api/company-profile/**").hasAnyAuthority("SUPER_ADMIN")
+
+
+                        // Temporarily blocking CMS. Requested by Client.
+                        .requestMatchers("/api/cms", "/api/cms/**").denyAll()
 
                         // CMS Access
-                        .requestMatchers(HttpMethod.GET, "/api/cms").permitAll()
-                        .requestMatchers("/api/cms", "/api/cms/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN", "ROLE_ADMIN", "ROLE_SUPER_ADMIN")
-                        
-                        // Admin Management Access
-                        .requestMatchers("/api/admin-users/**").hasAuthority("SUPER_ADMIN")
+                        // .requestMatchers(HttpMethod.GET, "/api/cms").permitAll()
+                        // .requestMatchers("/api/cms", "/api/cms/**").hasAnyAuthority( "SUPER_ADMIN")
 
-                        
+
+                        // Dashboard PageView
+                        .requestMatchers(HttpMethod.POST, "/api/page-views/**").permitAll()
+                        .requestMatchers("/api/page-views/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
+
+                        // Customer Access
+                        .requestMatchers(HttpMethod.POST, "/api/customers").permitAll()
+
+                        // Trending Products Access
+                        .requestMatchers(HttpMethod.GET, "/api/trending-products").permitAll()
+                        .requestMatchers("/api/trending-products", "/api/trending-products/**").hasAnyAuthority("ADMIN", "SUPER_ADMIN")
+
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(

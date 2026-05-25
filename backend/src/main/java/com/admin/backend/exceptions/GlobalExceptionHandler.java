@@ -34,6 +34,10 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
     }
 
+    @ExceptionHandler(ProductInUseException.class)
+    public ResponseEntity<String> handleProductInUse(ProductInUseException e){
+        return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
 
     // TODO : Add specific handlers for ResourceNotFoundException, etc.
 }

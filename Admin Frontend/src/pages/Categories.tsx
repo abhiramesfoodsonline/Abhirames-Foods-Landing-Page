@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+
 import {
     Dialog,
     DialogContent,
@@ -13,9 +14,20 @@ import {
     DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
-import { Plus, Pencil, Trash2, Loader2 } from 'lucide-react';
+import {Plus, Pencil, Trash2, Loader2, Package} from 'lucide-react';
 import { toast } from 'sonner';
 import {Category, categoriesAPI, Product} from "@/lib/api.ts";
+import {useAuth} from "@/contexts/AuthContext.tsx";
+import {Textarea} from "@/components/ui/textarea.tsx";
+import { useMemo } from 'react';
+import { Search } from 'lucide-react';
+import {
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
+} from '@/components/ui/select';
 
 
 const Categories: React.FC = () => {
@@ -23,8 +35,12 @@ const Categories: React.FC = () => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedCategory, setSelectedCategory] = useState(null);
-    const [formData, setFormData] = useState({ category_name: '', is_active: true , image_url: ''});
+    const [formData, setFormData] = useState({ category_name: '', is_active: true , image_url: '', description: '', title: '' });
     const [isLoading, setIsLoading] = useState(false);
+    const { user } = useAuth();
+    const isSuperAdmin = user?.role === "SUPER_ADMIN";
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filterStatus, setFilterStatus] = useState<string>('all');
 
 
     const fetchCategories = async () => {
@@ -34,6 +50,8 @@ const Categories: React.FC = () => {
                 id: c.category_id,
                 category_name: c.category_name,
                 image_url: c.image_url,
+                description: c.description,
+                title: c.title,
                 is_active: c.is_active,
                 created_at: c.created_at,
                 updated_at: c.updated_at,
@@ -44,19 +62,39 @@ const Categories: React.FC = () => {
         }
     };
 
+    const filtered = useMemo(() => {
+        let data = [...categories];
+
+        if (searchQuery) {
+            const q = searchQuery.toLowerCase();
+            data = data.filter((c) =>
+                c.category_name?.toLowerCase().includes(q) ||
+                c.title?.toLowerCase().includes(q)
+            );
+        }
+
+        if (filterStatus !== 'all') {
+            data = data.filter((c) =>
+                filterStatus === 'active' ? c.is_active : !c.is_active
+            );
+        }
+
+        return data;
+    }, [categories, searchQuery, filterStatus]);
+
     useEffect(() => {
         fetchCategories();
     }, []);
 
     const handleAdd = () => {
         setSelectedCategory(null);
-        setFormData({ category_name: '', is_active: true, image_url: ''});
+        setFormData({ category_name: '', is_active: true, image_url: '', description: '', title: '' });
         setIsFormOpen(true);
     };
 
     const handleEdit = (category) => {
         setSelectedCategory(category);
-        setFormData({ category_name: category.category_name, is_active: category.is_active, image_url: category.image_url });
+        setFormData({ category_name: category.category_name, is_active: category.is_active, image_url: category.image_url, description: category.description, title: category.title });
         setIsFormOpen(true);
     };
 
@@ -75,6 +113,8 @@ const Categories: React.FC = () => {
                     category_name: formData.category_name,
                     is_active: formData.is_active,
                     image_url: formData.image_url,
+                    description: formData.description,
+                    title: formData.title,
                 });
                 toast.success("Category updated");
             } else {
@@ -82,6 +122,8 @@ const Categories: React.FC = () => {
                     category_name: formData.category_name,
                     is_active: formData.is_active,
                     image_url: formData.image_url,
+                    description: formData.description,
+                    title: formData.title,
                 });
                 toast.success("Category created");
             }
@@ -103,6 +145,7 @@ const Categories: React.FC = () => {
             toast.success("Category deleted");
             fetchCategories();
         } catch (e) {
+
             if (e.response.status === 409){
                 toast.error("Delete Failed: " + selectedCategory.category_name + " contains one or more products");
             } else {
@@ -121,6 +164,8 @@ const Categories: React.FC = () => {
                 category_name: category.category_name,
                 is_active: !category.is_active,
                 image_url: category.image_url,
+                description: category.description,
+                title: category.title,
             });
             fetchCategories();
             toast.success("Status updated");
@@ -128,11 +173,27 @@ const Categories: React.FC = () => {
             toast.error("Failed to update status");
         }
     };
-    
+
     const columns = [
-        { header: 'Name', accessorKey: 'category_name' as const },
+        // { header: 'Name', accessorKey: 'category_name' as const },
         {
-            header: 'Status',
+            header: 'Category',
+            cell: (row: Category) => (
+                <div className="flex items-center gap-3">
+                    <div className="h-10 w-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                        <Package className="h-5 w-5 text-primary" />
+                    </div>
+                    <div>
+                        <p className="font-medium text-foreground">{row.category_name}</p>
+                        <p className="text-sm text-muted-foreground truncate max-w-xs">
+                            {row.title}
+                        </p>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            header: 'Availability',
             cell: (row) => (
                 <div className="flex items-center gap-2">
                     <Switch
@@ -195,6 +256,7 @@ const Categories: React.FC = () => {
                         variant="ghost"
                         size="icon"
                         onClick={() => handleDelete(row)}
+                        disabled={!isSuperAdmin}
                         className="h-8 w-8 text-destructive hover:text-destructive"
                     >
                         <Trash2 className="h-4 w-4" />
@@ -210,7 +272,10 @@ const Categories: React.FC = () => {
             <div className="flex items-center justify-between">
                 <div>
                     <h1 className="text-2xl font-bold text-foreground">Categories</h1>
-                    <p className="text-muted-foreground">Manage your product categories</p>
+                    {/*<p className="text-muted-foreground">Manage your product categories</p>*/}
+                    <p className="text-muted-foreground">
+                        {filtered.length} of {categories.length} categories
+                    </p>
                 </div>
                 <Button onClick={handleAdd} className="gap-2">
                     <Plus className="h-4 w-4" />
@@ -218,10 +283,33 @@ const Categories: React.FC = () => {
                 </Button>
             </div>
 
+            {/* Search + Filter */}
+            <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                    <Input
+                        placeholder="Search by name or title..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9"
+                    />
+                </div>
+                <Select value={filterStatus} onValueChange={setFilterStatus}>
+                    <SelectTrigger className="w-full sm:w-44">
+                        <SelectValue placeholder="Filter by status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All</SelectItem>
+                        <SelectItem value="active">Active</SelectItem>
+                        <SelectItem value="inactive">Inactive</SelectItem>
+                    </SelectContent>
+                </Select>
+            </div>
+
             {/* Data Table */}
             <DataTable
                 columns={columns}
-                data={categories}
+                data={filtered}
                 emptyMessage="No categories found. Add your first category!"
             />
 
@@ -249,6 +337,31 @@ const Categories: React.FC = () => {
                                         setFormData((prev) => ({ ...prev, category_name: e.target.value }))
                                     }
                                     placeholder="Enter category name"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="title">Title</Label>
+                                <Textarea
+                                    id="title"
+                                    value={formData.title}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, title: e.target.value }))
+                                    }
+                                    placeholder="Enter category title"
+                                    required
+                                />
+                            </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
+                                    id="description"
+                                    value={formData.description}
+                                    onChange={(e) =>
+                                        setFormData((prev) => ({ ...prev, description: e.target.value }))
+                                    }
+                                    placeholder="Enter category description"
+                                    rows={3}
                                     required
                                 />
                             </div>

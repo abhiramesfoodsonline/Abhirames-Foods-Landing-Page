@@ -38,15 +38,16 @@ export const authAPI = {
     login: (username: string, password: string) =>
         api.post('/api/auth/login', { username, password }),
     // logout: () => api.post('/admin/logout'),
+
 };
 
 // Categories APIs
 export const categoriesAPI = {
 
-    create: (data: {category_name?: string, is_active?: boolean, image_url?: string}) =>
+    create: (data: {category_name?: string, is_active?: boolean, image_url?: string, description?: string, title?: string}) =>
         api.post('/api/categories', data),
 
-    update:(id: string, data: {category_name?: string, is_active?: boolean, image_url?: string}) =>
+    update:(id: string, data: {category_name?: string, is_active?: boolean, image_url?: string, description?: string, title?: string}) =>
         api.put(`/api/categories/${id}`, data),
 
     delete: (id: string) => api.delete(`/api/categories/${id}`),
@@ -82,6 +83,9 @@ export const companyAPI = {
 };
 
 export const adminUsersAPI = {
+    create: (data: {username: string, password: string, role: string}) =>
+        api.post('/api/admin-users', data),
+
     getByUsername: (username: string) =>
         api.get(`/api/admin-users/search-username/${username}`),
 
@@ -90,6 +94,16 @@ export const adminUsersAPI = {
         newPassword: string;
     }) =>
         api.put(`/api/admin-users/${username}`, data),
+
+    updateRole: (username: string, role:string) =>
+        api.put('/api/admin-users/update-role', null, {params: {username, role}}),
+
+    getMe: (username: string) => api.get(`/api/admin-users/search-username/${username}`),
+
+    getAll: () => api.get('/api/admin-users'),
+
+    delete: (username   : string) => api.delete(`/api/admin-users/${username}`),
+
 
 };
 
@@ -108,11 +122,37 @@ export const dashboardAPI = {
 };
 
 
+export const pageViewAPI = {
+    track: (path: string) =>
+        api.post('/api/page-views/track', null, { params: { path } }),
+
+    getStats: () => api.get('/api/page-views/stats'),
+};
+
+
+export const customersAPI = {
+    getAll: () => api.get('/api/customers'),
+
+    getAllCreatedAfter: (date: string) => api.get('/api/customers/search/created-after', { params: { date } }),
+
+    createCustomer: (data: { name: string; mobile_number: string }) =>
+        api.post('/api/customers', data),
+}
+
+export const trendingProductsAPI = {
+    getAll: () => api.get('/api/trending-products'),
+    create: (data: { product_id: string }) =>
+        api.post('/api/trending-products', data),
+    delete: (id: string) => api.delete(`/api/trending-products/${id}`),
+}
 
 // Types
 export interface Category {
     category_id: string;
     category_name: string;
+    description: string;
+    title: string;
+    image_url: string;
     is_active: boolean;
     created_at: string;
     updated_at: string;
@@ -122,7 +162,7 @@ export interface Product {
     product_id: string;
     product_name: string;
     product_description: string;
-    summarized_description: string;
+    title: string;
     buy_link: string,
     product_image_url: string;
     is_available: boolean;
@@ -135,7 +175,7 @@ export interface Product {
 export interface ProductFormData {
     product_name: string;
     product_description: string;
-    summarized_description: string;
+    title: string;
     category_id: string;
     product_image_url: string;
     buy_link: string;
@@ -160,5 +200,19 @@ export interface CMSPage {
     content: string;
     updated_at: string;
 }
+
+export interface Customers {
+    customer_id: string;
+    name: string;
+    mobile_number: string;
+    created_at: string;
+}
+
+export interface TrendingProducts {
+    trending_product_id: string;
+    product_id: string;
+}
+
+
 
 export default api;

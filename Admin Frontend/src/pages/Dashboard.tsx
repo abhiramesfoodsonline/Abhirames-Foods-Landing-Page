@@ -3,7 +3,7 @@ import StatCard from '@/components/ui/StatCard';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { FolderTree, Package, CheckCircle, TrendingUp, Clock, Eye } from 'lucide-react';
 import {toast} from "sonner";
-import {dashboardAPI} from "@/lib/api.ts";
+import {dashboardAPI, pageViewAPI} from "@/lib/api.ts";
 
 
 const Dashboard: React.FC = () => {
@@ -14,8 +14,17 @@ const Dashboard: React.FC = () => {
     });
 
     const [recentProducts, setRecentProducts] = useState<any[]>([]);
+    const [weeklyViews, setWeeklyViews] = useState('');
 
     useEffect(() => {
+        const fetchStats = async () => {
+            try {
+                const res = await pageViewAPI.getStats();
+                setWeeklyViews(res.data.weeklyViews);
+            } catch (e) {
+                setWeeklyViews('N/A');
+            }
+        };
         const loadDashboard = async () => {
             try {
                 const [
@@ -48,6 +57,7 @@ const Dashboard: React.FC = () => {
 
         };
 
+        fetchStats();
         loadDashboard();
     }, []);
 
@@ -145,7 +155,7 @@ const Dashboard: React.FC = () => {
                                     <p className="text-sm text-muted-foreground">This week</p>
                                 </div>
                             </div>
-                            <span className="text-2xl font-bold text-accent">1.2K</span>
+                            <span className="text-2xl font-bold text-accent">{weeklyViews}</span>
                         </div>
                     </CardContent>
                 </Card>
@@ -186,9 +196,7 @@ const Dashboard: React.FC = () => {
                                             </span>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-semibold text-foreground">₹{product.price}</p>
-                                    </div>
+
                                 </div>
                             ))}
                         </div>
