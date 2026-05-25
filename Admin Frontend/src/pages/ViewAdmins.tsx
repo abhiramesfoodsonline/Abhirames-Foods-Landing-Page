@@ -242,6 +242,7 @@ const ViewAdmins: React.FC = () => {
                 description={`Are you sure you want to delete "${selectedAdmin?.username}"? This action cannot be undone.`}
                 confirmText="Delete"
                 onConfirm={confirmDelete}
+                disable={selectedAdmin?.role === 'SUPER_ADMIN'}
                 isLoading={isLoading}
                 variant="destructive"
             />

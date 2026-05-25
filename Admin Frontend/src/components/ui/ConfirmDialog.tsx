@@ -21,6 +21,7 @@ interface ConfirmDialogProps {
   onConfirm: () => void;
   isLoading?: boolean;
   variant?: 'default' | 'destructive';
+  disable?: boolean;
 }
 
 const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
@@ -33,6 +34,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   onConfirm,
   isLoading,
   variant = 'default',
+  disable = false,
 }) => {
   return (
     <AlertDialog open={open} onOpenChange={onOpenChange}>
@@ -46,9 +48,11 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
           <AlertDialogAction
             onClick={(e) => {
               e.preventDefault();
-              onConfirm();
+              if (!disable){
+                onConfirm();
+              }
             }}
-            disabled={isLoading}
+            disabled={isLoading || disable}
             className={
               variant === 'destructive'
                 ? 'bg-destructive text-destructive-foreground hover:bg-destructive/90'

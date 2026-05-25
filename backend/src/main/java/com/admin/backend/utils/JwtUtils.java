@@ -5,6 +5,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,7 +21,10 @@ import java.util.function.Function;
 @Component
 public class JwtUtils {
 
-    private static final String SECRET_KEY = "This is a sample secret key for abhirames food product, a business running by Mr.T.Gurubaran.";
+    // private static final String SECRET_KEY = "This is a sample secret key for abhirames food product, a business running by Mr.T.Gurubaran.";
+
+    @Value("${JWT_SECRET}")
+    private String secretKey;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
