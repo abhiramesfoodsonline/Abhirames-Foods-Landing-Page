@@ -36,3 +36,5 @@ build/
 .env
 application-local.properties
 target/
+
+Deployment/
