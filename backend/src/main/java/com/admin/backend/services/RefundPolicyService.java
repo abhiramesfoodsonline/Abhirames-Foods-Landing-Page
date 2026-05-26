@@ -26,7 +26,7 @@ public class RefundPolicyService {
         if (refundPolicyRepository.findAll().isEmpty()){
             throw new ResourceNotFoundException("Refund policy not found. Please create one.");
         }
-        return refundPolicyRepository.findAll().getFirst();
+        return refundPolicyRepository.findAll().get(0);
     }
     
     public RefundPolicyModel updateRefundPolicy(RefundPolicyModel refundPolicyModel){

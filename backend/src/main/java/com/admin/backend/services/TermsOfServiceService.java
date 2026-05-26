@@ -26,7 +26,7 @@ public class TermsOfServiceService {
         if (termsOfServiceRepository.findAll().isEmpty()){
             throw new ResourceNotFoundException("Terms of Service not found. Please create one.");
         }
-        return termsOfServiceRepository.findAll().getFirst();
+        return termsOfServiceRepository.findAll().get(0);
     }
 
     public TermsOfServiceModel updateTermsOfService(TermsOfServiceModel termsOfServiceModel){

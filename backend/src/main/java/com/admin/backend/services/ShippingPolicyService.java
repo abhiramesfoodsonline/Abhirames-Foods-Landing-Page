@@ -20,7 +20,7 @@ public class ShippingPolicyService {
         if (shippingPolicyRepository.findAll().isEmpty()){
             throw new ResourceNotFoundException("Shipping policy not found. Please create one.");
         }
-        return shippingPolicyRepository.findAll().getFirst();
+        return shippingPolicyRepository.findAll().get(0);
     }
 
     public ShippingPolicyModel createShippingPolicyModel(ShippingPolicyModel shippingPolicyModel){

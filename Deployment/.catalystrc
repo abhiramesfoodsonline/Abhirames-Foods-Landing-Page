@@ -1,0 +1,30 @@
+{
+  "defaults": {
+    "project": 1,
+    "env": 1
+  },
+  "actives": {
+    "project": 1,
+    "env": 1
+  },
+  "projects": [
+    {
+      "idx": 1,
+      "id": "41813000000013046",
+      "name": "Abhirames-Foods-Landing-Page-Backend",
+      "domain": {
+        "id": "50042537310",
+        "name": "abhirames-foods-landing-page-backend-60072491730.development"
+      },
+      "timezone": "Asia/Kolkata",
+      "env": [
+        {
+          "idx": 1,
+          "id": "60072491730",
+          "name": "Development",
+          "type": 3
+        }
+      ]
+    }
+  ]
+}

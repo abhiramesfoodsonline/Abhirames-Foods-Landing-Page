@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "abhirames-food-products-user",
     "public": "dist",
     "ignore": [
       "firebase.json",

@@ -25,7 +25,7 @@ public class PrivacyPolicyService {
         if (privacyPolicyRepository.findAll().isEmpty()){
             throw new ResourceNotFoundException("Privacy policy not found. Please create one.");
         }
-        return privacyPolicyRepository.findAll().getFirst();
+        return privacyPolicyRepository.findAll().get(0);
     }
 
     public PrivacyPolicyModel updatePrivacyPolicy(PrivacyPolicyModel privacyPolicyModel){

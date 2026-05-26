@@ -25,7 +25,7 @@ public class ContactUsService {
             throw new ResourceNotFoundException("Contact Us not found.");
         }
         
-        return contactUsRepository.findAll().getFirst();
+        return contactUsRepository.findAll().get(0);
     }
     
     public ContactUsModel updateContactUs(ContactUsModel contactUs) {

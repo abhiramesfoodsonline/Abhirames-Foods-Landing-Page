@@ -24,7 +24,7 @@ public class JwtUtils {
     // private static final String SECRET_KEY = "This is a sample secret key for abhirames food product, a business running by Mr.T.Gurubaran.";
 
     @Value("${JWT_SECRET}")
-    private String secretKey;
+    private String SECRET_KEY;
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);

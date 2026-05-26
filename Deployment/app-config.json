@@ -1,0 +1,15 @@
+{
+	"command": "java -Xms64m -Xmx256m -XX:MaxMetaspaceSize=128m -XX:+UseSerialGC -jar Backend-0.0.1-SNAPSHOT.jar --server.port=${X_ZOHO_CATALYST_LISTEN_PORT}",
+	"build_path": ".",
+	"stack": "java17",
+	"env_variables": {
+		"DB_URL": "jdbc:postgresql://aws-1-ap-south-1.pooler.supabase.com:5432/postgres?user=postgres.oeeaypgicjxumfmnzfun&password=Abhirames@10",
+		"DB_USERNAME": "postgres.oeeaypgicjxumfmnzfun",
+		"DB_PASSWORD": "Abhirames@10",
+		"JWT_SECRET": "This is a sample secret key for abhirames food product, a business running by Mr.T.Gurubaran.",
+		"SPRING_PROFILES_ACTIVE": "prod"
+	},
+	"memory": 512,
+	"scripts": {},
+	"platform": "javase"
+}
